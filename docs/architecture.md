@@ -65,7 +65,12 @@ VM.Step()
 
 Snapshots contain memory, byte ownership, player state, and process state. Events describe instruction execution, writes, forks, live calls, deaths, and lifecycle checks.
 
-The current terminal visualizer is a working dependency-free renderer. A graphical renderer can consume the same API without adding UI dependencies to the VM core.
+Two renderers consume this boundary:
+
+- `vm/internal/visual` is the dependency-free terminal diagnostic renderer used by the core module.
+- `vm/visualizer` is a separate Go 1.25 nested module using Ebitengine. It renders the same real VM snapshots/events and therefore does not duplicate or mock VM execution.
+
+The nested-module boundary is intentional: the mandatory VM retains zero graphical dependencies and its Go 1.23 toolchain contract, while the bonus renderer can use the current Ebitengine release independently.
 
 ## Verification
 

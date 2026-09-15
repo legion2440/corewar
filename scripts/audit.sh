@@ -168,10 +168,26 @@ for src in "${diff_sources[@]}"; do
   diff_players+=("$diff_dir/${base%.s}.cor")
 done
 for cycle in 10 100 500 1600; do
-  "$VM_REF" -d "$cycle" "${diff_players[@]}" >"$diff_dir/ref-$cycle.txt" 2>"$diff_dir/ref-$cycle.err"
-  ./corewar -d "$cycle" "${diff_players[@]}" >"$diff_dir/ours-$cycle.txt" 2>"$diff_dir/ours-$cycle.err"
-  grep '^0x[0-9a-fA-F]\{4\} :' "$diff_dir/ref-$cycle.txt" >"$diff_dir/ref-$cycle.dump"
-  grep '^0x[0-9a-fA-F]\{4\} :' "$diff_dir/ours-$cycle.txt" >"$diff_dir/ours-$cycle.dump"
+  if ! "$VM_REF" -d "$cycle" "${diff_players[@]}" >"$diff_dir/ref-$cycle.txt" 2>"$diff_dir/ref-$cycle.err"; then
+    cat "$diff_dir/ref-$cycle.err" >&2
+    fail "reference VM failed at cycle $cycle"
+  fi
+  if ! ./corewar -d "$cycle" "${diff_players[@]}" >"$diff_dir/ours-$cycle.txt" 2>"$diff_dir/ours-$cycle.err"; then
+    cat "$diff_dir/ours-$cycle.err" >&2
+    fail "learner VM failed at cycle $cycle"
+  fi
+  grep '^0x[0-9a-fA-F]\\{4\\} :' "$diff_dir/ref-$cycle.txt" >"$diff_dir/ref-$cycle.dump" || true
+  grep '^0x[0-9a-fA-F]\\{4\\} :' "$diff_dir/ours-$cycle.txt" >"$diff_dir/ours-$cycle.dump" || true
+  if [[ ! -s "$diff_dir/ref-$cycle.dump" ]]; then
+    printf '%s\\n' '--- reference VM output ---' >&2
+    head -160 "$diff_dir/ref-$cycle.txt" >&2
+    fail "reference VM produced no recognized dump at cycle $cycle"
+  fi
+  if [[ ! -s "$diff_dir/ours-$cycle.dump" ]]; then
+    printf '%s\\n' '--- learner VM output ---' >&2
+    head -160 "$diff_dir/ours-$cycle.txt" >&2
+    fail "learner VM produced no recognized dump at cycle $cycle"
+  fi
   cmp -s "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" || {
     diff -u "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" | head -120 >&2 || true
     fail "VM memory diverges from reference at cycle $cycle"

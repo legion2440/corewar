@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "module_id": "assembler",
+  "purpose": "Rust assembler, disassembler, arithmetic-expression support, and macro preprocessing",
+  "paths": [
+    {
+      "path": "assembler/src/main.rs",
+      "lifecycle": "implemented",
+      "provenance": "authored"
+    },
+    {
+      "path": "assembler/src/lib.rs",
+      "lifecycle": "implemented",
+      "provenance": "authored"
+    }
+  ],
+  "contracts": [
+    "spec/binary-format.md",
+    "spec/instruction-set.md"
+  ],
+  "validators": [],
+  "tests": [
+    "assembler/tests/"
+  ]
+}

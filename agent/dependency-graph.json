@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "edges": [
+    ["assembler", "core-spec"],
+    ["vm", "core-spec"],
+    ["visualizer", "vm"],
+    ["champions", "core-spec"]
+  ]
+}

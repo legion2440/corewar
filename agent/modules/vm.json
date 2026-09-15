@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "module_id": "vm",
+  "purpose": "Deterministic Go Corewar virtual machine and CLI",
+  "paths": [
+    {
+      "path": "vm/cmd/corewar/main.go",
+      "lifecycle": "implemented",
+      "provenance": "authored"
+    },
+    {
+      "path": "vm/internal/corewar/vm.go",
+      "lifecycle": "implemented",
+      "provenance": "authored"
+    }
+  ],
+  "contracts": [
+    "spec/binary-format.md",
+    "spec/instruction-set.md"
+  ],
+  "validators": [],
+  "tests": [
+    "vm/internal/"
+  ]
+}

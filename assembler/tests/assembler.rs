@@ -86,6 +86,9 @@ fn invalid_programs_are_rejected() {
         ".name \"x\"\n.description \"x\"\nld r1,r2\n",
         ".name \"x\"\n.description \"x\"\nzjmp %:missing\n",
         ".name \"x\"\n.description \"x\"\nlive %1, %2\n",
+        ".name \"x\"\n.description \"x\"\nlive %2147483648\n",
+        ".name \"x\"\n.description \"x\"\nzjmp %32768\n",
+        ".name \"x\"\n.description \"x\"\nld 32768, r1\n",
     ];
     for src in cases {
         assert!(assemble(src).is_err(), "expected error for {src:?}");

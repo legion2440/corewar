@@ -76,4 +76,7 @@ func TestPresentationHelpers(t *testing.T) {
 	if got := truncate("abcdefghijklmnopqrstuvwxyz", 10); got != "abcdefg..." {
 		t.Fatalf("truncate=%q", got)
 	}
+	if got := truncate("кириллица", 6); got != "кир..." {
+		t.Fatalf("unicode truncate=%q", got)
+	}
 }

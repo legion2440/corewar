@@ -29,21 +29,21 @@ func (a *Arena) ReadInt32(address int) int32 {
 		uint32(a.Byte(address+3)))
 }
 
-func (a *Arena) WriteByte(address int, value byte) {
+func (a *Arena) SetByte(address int, value byte) {
 	a.memory[Normalize(address)] = value
 }
 
 func (a *Arena) WriteInt32(address int, value int32) {
 	u := uint32(value)
-	a.WriteByte(address, byte(u>>24))
-	a.WriteByte(address+1, byte(u>>16))
-	a.WriteByte(address+2, byte(u>>8))
-	a.WriteByte(address+3, byte(u))
+	a.SetByte(address, byte(u>>24))
+	a.SetByte(address+1, byte(u>>16))
+	a.SetByte(address+2, byte(u>>8))
+	a.SetByte(address+3, byte(u))
 }
 
 func (a *Arena) Write(address int, data []byte) {
 	for i, b := range data {
-		a.WriteByte(address+i, b)
+		a.SetByte(address+i, b)
 	}
 }
 

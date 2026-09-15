@@ -118,6 +118,19 @@ func TestLdiAndLldiAddressing(t *testing.T) {
 	}
 }
 
+
+func TestLongLoadsUpdateCarry(t *testing.T) {
+	_, p, _ := executeOnce(t, []byte{13, 0x90, 0, 0, 0, 0, 2}, nil)
+	if !p.carry || p.registers[1] != 0 {
+		t.Fatalf("lld carry=%v value=%d", p.carry, p.registers[1])
+	}
+
+	_, p, _ = executeOnce(t, []byte{14, 0xa4, 0, 100, 0, 100, 2}, nil)
+	if !p.carry || p.registers[1] != 0 {
+		t.Fatalf("lldi carry=%v value=%d", p.carry, p.registers[1])
+	}
+}
+
 func TestStiWritesAtSummedAddress(t *testing.T) {
 	code := []byte{11, 0x68, 2, 0, 10, 0, 7}
 	vm, _, events := executeOnce(t, code, func(_ *VM, p *process) {

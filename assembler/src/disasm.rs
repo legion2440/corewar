@@ -125,5 +125,5 @@ fn nul_string(bytes: &[u8], field: &str) -> Result<String, AsmError> {
 }
 
 fn escape(input: &str) -> String {
-    input.replace('\\', "\\\\").replace('"', "\\\"")
+    input.to_owned()
 }

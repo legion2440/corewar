@@ -11,11 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
           cache: false
       - name: Python validator dependency
         run: python3 -m pip install --user jsonschema
+      - name: Static checks
+        run: |
+          cargo fmt --manifest-path assembler/Cargo.toml -- --check
+          cargo clippy --manifest-path assembler/Cargo.toml --all-targets -- -D warnings
+          test -z "$(gofmt -l vm)"
+          cd vm && go vet ./...
       - name: Full audit
         run: make audit

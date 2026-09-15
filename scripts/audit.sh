@@ -176,29 +176,8 @@ for cycle in 10 100 500 1600; do
     cat "$diff_dir/ours-$cycle.err" >&2
     fail "learner VM failed at cycle $cycle"
   fi
-  grep -E '^[0-9a-fA-F]{8}  ' "$diff_dir/ref-$cycle.txt" >"$diff_dir/ref-$cycle.dump" || true
-  grep -E '^[0-9a-fA-F]{8}  ' "$diff_dir/ours-$cycle.txt" >"$diff_dir/ours-$cycle.dump" || true
-  if [[ ! -s "$diff_dir/ref-$cycle.dump" ]]; then
-    printf '%s\\n' '--- reference VM output ---' >&2
-    head -160 "$diff_dir/ref-$cycle.txt" >&2
-    fail "reference VM produced no recognized dump at cycle $cycle"
-  fi
-  if [[ ! -s "$diff_dir/ours-$cycle.dump" ]]; then
-    printf '%s\\n' '--- learner VM output ---' >&2
-    head -160 "$diff_dir/ours-$cycle.txt" >&2
-    fail "learner VM produced no recognized dump at cycle $cycle"
-  fi
-  cmp -s "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" || {
-    printf '%s\\n' "--- dump row counts at cycle $cycle ---" >&2
-    wc -l "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" >&2
-    printf '%s\\n' '--- reference tail ---' >&2
-    tail -8 "$diff_dir/ref-$cycle.dump" >&2
-    printf '%s\\n' '--- learner tail ---' >&2
-    tail -8 "$diff_dir/ours-$cycle.dump" >&2
-    printf '%s\\n' '--- first differences ---' >&2
-    diff -u "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" | head -120 >&2 || true
+  python3 scripts/compare_dumps.py "$diff_dir/ref-$cycle.txt" "$diff_dir/ours-$cycle.txt" ||
     fail "VM memory diverges from reference at cycle $cycle"
-  }
 done
 rm -rf "$diff_dir"
 

@@ -179,6 +179,23 @@ for cycle in 10 100 500 1600; do
   python3 scripts/compare_dumps.py "$diff_dir/ref-$cycle.txt" "$diff_dir/ours-$cycle.txt" ||
     fail "VM memory diverges from reference at cycle $cycle"
 done
+
+for probe in testdata/probes/lld-carry.s testdata/probes/lldi-carry.s; do
+  base="$(basename "$probe" .s)"
+  cp "$probe" "$diff_dir/$base.s"
+  "$ASM_REF" "$diff_dir/$base.s" >/dev/null
+  if ! "$VM_REF" -d 100 "$diff_dir/$base.cor" >"$diff_dir/ref-$base.txt" 2>"$diff_dir/ref-$base.err"; then
+    cat "$diff_dir/ref-$base.err" >&2
+    fail "reference VM failed for $base probe"
+  fi
+  if ! ./corewar -d 100 "$diff_dir/$base.cor" >"$diff_dir/ours-$base.txt" 2>"$diff_dir/ours-$base.err"; then
+    cat "$diff_dir/ours-$base.err" >&2
+    fail "learner VM failed for $base probe"
+  fi
+  python3 scripts/compare_dumps.py "$diff_dir/ref-$base.txt" "$diff_dir/ours-$base.txt" ||
+    fail "VM differs from reference for $base probe"
+done
+
 rm -rf "$diff_dir"
 
 printf '%s\n' '[9/9] Champion beats ameba on reference VM in both positions'

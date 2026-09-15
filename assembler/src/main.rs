@@ -66,6 +66,14 @@ fn atomic_write(path: &Path, data: &[u8]) -> Result<(), String> {
     let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("output");
     let tmp = parent.join(format!(".{file_name}.tmp-{}", process::id()));
     fs::write(&tmp, data).map_err(|e| format!("{}: {e}", tmp.display()))?;
+    #[cfg(windows)]
+    if path.exists() {
+        if let Err(e) = fs::remove_file(path) {
+            let _ = fs::remove_file(&tmp);
+            return Err(format!("{}: {e}", path.display()));
+        }
+    }
+
     if let Err(e) = fs::rename(&tmp, path) {
         let _ = fs::remove_file(&tmp);
         return Err(format!("{}: {e}", path.display()));

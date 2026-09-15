@@ -78,6 +78,16 @@ nop r1
     assert_eq!(first, second);
 }
 
+
+#[test]
+fn utf8_headers_and_backslashes_round_trip() {
+    let src = ".name \"тест\\champ\"\n.description \"описание\\path\"\nlive %1\n";
+    let first = assemble(src).unwrap();
+    let text = disassemble(&first).unwrap();
+    let second = assemble(&text).unwrap();
+    assert_eq!(first, second);
+}
+
 #[test]
 fn invalid_programs_are_rejected() {
     let cases = [

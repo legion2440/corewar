@@ -97,8 +97,9 @@ fn expand_once(line: &str, macros: &HashMap<String, String>, line_no: usize) -> 
             i = end;
             continue;
         }
-        out.push(c as char);
-        i += 1;
+        let ch = line[i..].chars().next().expect("valid UTF-8 source");
+        out.push(ch);
+        i += ch.len_utf8();
     }
     Ok((out, changed, names))
 }

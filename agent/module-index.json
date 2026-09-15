@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "modules": {
+    "assembler": {
+      "status": "implemented",
+      "roots": [
+        "assembler/"
+      ],
+      "entrypoints": [
+        "assembler/src/main.rs"
+      ],
+      "manifest": "agent/modules/assembler.json",
+      "dependencies": [
+        "core-spec"
+      ]
+    },
+    "vm": {
+      "status": "implemented",
+      "roots": [
+        "vm/"
+      ],
+      "entrypoints": [
+        "vm/cmd/corewar/main.go"
+      ],
+      "manifest": "agent/modules/vm.json",
+      "dependencies": [
+        "core-spec"
+      ]
+    },
+    "visualizer": {
+      "status": "implemented",
+      "roots": [
+        "vm/internal/visual/"
+      ],
+      "entrypoints": [
+        "vm/internal/visual/visual.go"
+      ],
+      "manifest": "agent/modules/visualizer.json",
+      "dependencies": [
+        "vm"
+      ]
+    },
+    "champions": {
+      "status": "implemented",
+      "roots": [
+        "champions/"
+      ],
+      "entrypoints": [
+        "champions/terminator.s"
+      ],
+      "manifest": "agent/modules/champions.json",
+      "dependencies": [
+        "core-spec"
+      ]
+    },
+    "core-spec": {
+      "status": "implemented",
+      "roots": [
+        "spec/"
+      ],
+      "entrypoints": [
+        "spec/instruction-set.md",
+        "spec/binary-format.md"
+      ],
+      "manifest": "agent/modules/core-spec.json",
+      "dependencies": []
+    }
+  }
+}

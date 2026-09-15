@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "module_id": "core-spec",
+  "purpose": "Human-readable canonical interoperability contract shared by Rust and Go implementations",
+  "paths": [
+    {"path": "spec/instruction-set.md", "lifecycle": "implemented", "provenance": "authored"},
+    {"path": "spec/binary-format.md", "lifecycle": "implemented", "provenance": "authored"}
+  ],
+  "contracts": ["spec/instruction-set.md", "spec/binary-format.md"],
+  "validators": [],
+  "tests": []
+}

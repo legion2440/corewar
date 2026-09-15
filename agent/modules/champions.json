@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "module_id": "champions",
+  "purpose": "Corewar assembly champions used for evaluation and demonstrations",
+  "paths": [
+    {
+      "path": "champions/terminator.s",
+      "lifecycle": "implemented",
+      "provenance": "authored"
+    }
+  ],
+  "contracts": [
+    "spec/instruction-set.md"
+  ],
+  "validators": [],
+  "tests": []
+}

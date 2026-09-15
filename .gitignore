@@ -1,0 +1,6 @@
+/asm
+/corewar
+assembler/target/
+*.cor
+*.dis.s
+.DS_Store

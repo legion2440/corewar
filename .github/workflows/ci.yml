@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main, implementation/corewar]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+      - name: Python validator dependency
+        run: python3 -m pip install --user jsonschema
+      - name: Build and unit tests
+        run: make build test contracts
+      - name: Inspect official playground
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/01-edu/public/master/subjects/corewar/data/playground.zip -o /tmp/playground.zip
+          unzip -q /tmp/playground.zip -d /tmp/playground
+          find /tmp/playground -maxdepth 4 -type f -printf '%P\n' | sort

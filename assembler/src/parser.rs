@@ -73,7 +73,7 @@ pub fn parse(source: &str) -> Result<Program, AsmError> {
                     return Err(AsmError::line(line_no, "duplicate .name directive"));
                 }
                 let value = parse_quoted_directive(code, ".name", line_no)?;
-                if value.as_bytes().len() > PROG_NAME_LENGTH {
+                if value.len() > PROG_NAME_LENGTH {
                     return Err(AsmError::line(
                         line_no,
                         format!("name exceeds {PROG_NAME_LENGTH} bytes"),
@@ -87,7 +87,7 @@ pub fn parse(source: &str) -> Result<Program, AsmError> {
                     return Err(AsmError::line(line_no, "duplicate .description directive"));
                 }
                 let value = parse_quoted_directive(code, ".description", line_no)?;
-                if value.as_bytes().len() > DESCRIPTION_LENGTH {
+                if value.len() > DESCRIPTION_LENGTH {
                     return Err(AsmError::line(
                         line_no,
                         format!("description exceeds {DESCRIPTION_LENGTH} bytes"),
@@ -111,10 +111,7 @@ pub fn parse(source: &str) -> Result<Program, AsmError> {
         code_started = true;
 
         let mut rest = code;
-        loop {
-            let Some((label, tail)) = take_leading_label(rest) else {
-                break;
-            };
+        while let Some((label, tail)) = take_leading_label(rest) {
             if labels.insert(label.to_owned(), offset).is_some() {
                 return Err(AsmError::line(
                     line_no,

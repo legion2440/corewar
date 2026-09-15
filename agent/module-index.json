@@ -30,10 +30,12 @@
     "visualizer": {
       "status": "implemented",
       "roots": [
-        "vm/internal/visual/"
+        "vm/internal/visual/",
+        "vm/visualizer/"
       ],
       "entrypoints": [
-        "vm/internal/visual/visual.go"
+        "vm/internal/visual/visual.go",
+        "vm/visualizer/main.go"
       ],
       "manifest": "agent/modules/visualizer.json",
       "dependencies": [

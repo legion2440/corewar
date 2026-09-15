@@ -1,5 +1,6 @@
 /asm
 /corewar
+/corewar-visual
 assembler/target/
 *.cor
 *.dis.s

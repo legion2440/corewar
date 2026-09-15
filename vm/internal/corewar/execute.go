@@ -108,7 +108,6 @@ func (vm *VM) execute(p *process) []Event {
 		address := p.pc + int(a+b)
 		value := vm.arena.ReadInt32(address)
 		vm.setReg(p, d.args[2], value)
-		p.carry = value == 0
 		vm.advance(p, d.size)
 	case 15:
 		childPC := p.pc + int(d.args[0].raw)

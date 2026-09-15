@@ -1,4 +1,4 @@
-.PHONY: all build asm-bin vm-bin test audit contracts clean
+.PHONY: all build asm-bin vm-bin visual visual-check test audit contracts clean
 
 all: build
 
@@ -11,6 +11,13 @@ asm-bin:
 vm-bin:
 	cd vm && go build -o ../corewar ./cmd/corewar
 
+visual:
+	cd vm/visualizer && go build -o ../../corewar-visual .
+
+visual-check:
+	cd vm/visualizer && go test ./...
+	cd vm/visualizer && go vet ./...
+
 test:
 	cd assembler && cargo test
 	cd vm && go test ./...
@@ -22,6 +29,6 @@ audit: build test contracts
 	bash scripts/audit.sh
 
 clean:
-	rm -f asm corewar testdata/*.cor testdata/*.dis.s champions/*.cor champions/*.dis.s
+	rm -f asm corewar corewar-visual testdata/*.cor testdata/*.dis.s champions/*.cor champions/*.dis.s
 	cd assembler && cargo clean
 	cd vm && go clean ./...

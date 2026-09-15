@@ -41,12 +41,13 @@ More detail is available in [docs/architecture.md](docs/architecture.md).
 ## Requirements
 
 - Rust stable
-- Go 1.23+
+- Go 1.23+ for the VM
+- Go 1.25+ for the optional Ebitengine visualizer
 - Python 3 with `jsonschema` for repository-contract validation
 - `make`
 - `curl` and `unzip` for the official reference audit
 
-No external runtime or parsing libraries are used by the assembler or VM.
+No external runtime or parsing libraries are used by the assembler or mandatory VM. The graphical bonus is isolated in its own nested Go module and depends only on Ebitengine.
 
 ## Build
 
@@ -147,13 +148,39 @@ Deterministic execution events can be written to stderr:
 
 ### Visualizer bonus
 
-A dependency-free terminal visualizer is available:
+The native graphical visualizer is built separately so the mandatory VM stays dependency-free:
+
+```bash
+make visual
+./corewar-visual player1.cor player2.cor
+```
+
+It uses **Ebitengine 2.10.1** and renders the real VM through the existing immutable `Snapshot + []Event` boundary.
+
+Controls:
+
+- `Space` — play / pause.
+- `S` — execute exactly one cycle while paused.
+- `R` — reset the match.
+- `1..4` — 1x / 10x / 50x / 100x simulation speed.
+- Mouse hover — inspect an arena byte.
+- Mouse click — pin the selected address.
+
+The 1600×960 interface contains a 64×64 arena, player-colored memory ownership, active PC cursors, write-flash animations, cycle/CYCLE_TO_DIE telemetry, player status cards, winner state, and a byte/process inspector.
+
+A dependency-free terminal renderer remains available for diagnostics:
 
 ```bash
 ./corewar --visual player1.cor player2.cor
 ```
 
-The VM itself has no rendering dependency. It exposes immutable snapshots and domain events, so the graphical renderer can be replaced without changing execution semantics.
+The Ebitengine code lives in `vm/visualizer/` as a nested module. It imports the VM read model but the VM never imports the renderer, so UI dependencies cannot affect mandatory execution or the reference audit.
+
+Visualizer verification:
+
+```bash
+make visual-check
+```
 
 ## Champion
 

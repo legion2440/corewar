@@ -322,13 +322,14 @@ func (g *game) Layout(_, _ int) (int, int) {
 
 func truncate(value string, max int) string {
 	value = strings.ReplaceAll(value, "\n", " ")
-	if len(value) <= max {
+	runes := []rune(value)
+	if len(runes) <= max {
 		return value
 	}
 	if max <= 3 {
-		return value[:max]
+		return string(runes[:max])
 	}
-	return value[:max-3] + "..."
+	return string(runes[:max-3]) + "..."
 }
 
 func opcodeLabel(opcode byte) string {

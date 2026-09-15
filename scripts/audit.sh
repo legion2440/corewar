@@ -132,7 +132,7 @@ for src in "${vm_sources[@]}"; do
 done
 ./corewar -d 10 "${vm_players[@]}" >"$vm_dir/dump.txt" 2>"$vm_dir/dump.err"
 [[ "$(grep -c '^Player [1-4] (' "$vm_dir/dump.txt")" -eq 4 ]] || fail "VM did not introduce four players"
-[[ "$(grep -c '^0x[0-9a-fA-F]\{4\} :' "$vm_dir/dump.txt")" -eq 128 ]] || fail "VM dump is not 128 rows of 32 bytes"
+[[ "$(grep -c '^[0-9a-fA-F]\{8\}  ' "$vm_dir/dump.txt")" -eq 128 ]] || fail "VM dump is not 128 rows of 32 bytes"
 rm -rf "$vm_dir"
 
 printf '%s\n' '[7/9] VM corrupted binary rejection'

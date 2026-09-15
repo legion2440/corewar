@@ -9,15 +9,27 @@ pub struct AsmError {
 
 impl AsmError {
     pub fn new(message: impl Into<String>) -> Self {
-        Self { line: None, column: None, message: message.into() }
+        Self {
+            line: None,
+            column: None,
+            message: message.into(),
+        }
     }
 
     pub fn line(line: usize, message: impl Into<String>) -> Self {
-        Self { line: Some(line), column: None, message: message.into() }
+        Self {
+            line: Some(line),
+            column: None,
+            message: message.into(),
+        }
     }
 
     pub fn at(line: usize, column: usize, message: impl Into<String>) -> Self {
-        Self { line: Some(line), column: Some(column), message: message.into() }
+        Self {
+            line: Some(line),
+            column: Some(column),
+            message: message.into(),
+        }
     }
 }
 

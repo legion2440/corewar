@@ -118,7 +118,6 @@ func TestLdiAndLldiAddressing(t *testing.T) {
 	}
 }
 
-
 func TestLongLoadCarrySemantics(t *testing.T) {
 	_, p, _ := executeOnce(t, []byte{13, 0x90, 0, 0, 0, 0, 2}, nil)
 	if !p.carry || p.registers[1] != 0 {

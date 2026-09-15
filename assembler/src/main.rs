@@ -1,4 +1,8 @@
-use std::{env, fs, path::{Path, PathBuf}, process};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    process,
+};
 
 fn main() {
     if let Err(err) = run() {
@@ -23,7 +27,9 @@ fn run() -> Result<(), String> {
             "-d" | "--disassemble" => disassemble = true,
             "-o" | "--output" => {
                 i += 1;
-                let Some(path) = args.get(i) else { return Err("-o/--output requires a path".into()); };
+                let Some(path) = args.get(i) else {
+                    return Err("-o/--output requires a path".into());
+                };
                 output = Some(PathBuf::from(path));
             }
             arg if arg.starts_with('-') => return Err(format!("unknown option '{arg}'")),
@@ -51,19 +57,29 @@ fn run() -> Result<(), String> {
         let bytes = corewar_asm::assemble(&source).map_err(|e| e.to_string())?;
         let out = output.unwrap_or_else(|| input.with_extension("cor"));
         atomic_write(&out, &bytes)?;
-        println!("Wrote {} ({} bytes of code)", out.display(), bytes.len() - corewar_asm::spec::HEADER_SIZE);
+        println!(
+            "Wrote {} ({} bytes of code)",
+            out.display(),
+            bytes.len() - corewar_asm::spec::HEADER_SIZE
+        );
     }
     Ok(())
 }
 
 fn disassembly_path(input: &Path) -> PathBuf {
-    let stem = input.file_stem().and_then(|s| s.to_str()).unwrap_or("output");
+    let stem = input
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("output");
     input.with_file_name(format!("{stem}.dis.s"))
 }
 
 fn atomic_write(path: &Path, data: &[u8]) -> Result<(), String> {
     let parent = path.parent().unwrap_or_else(|| Path::new("."));
-    let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("output");
+    let file_name = path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("output");
     let tmp = parent.join(format!(".{file_name}.tmp-{}", process::id()));
     fs::write(&tmp, data).map_err(|e| format!("{}: {e}", tmp.display()))?;
     #[cfg(windows)]

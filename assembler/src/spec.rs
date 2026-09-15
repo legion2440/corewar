@@ -29,7 +29,11 @@ const LIVE: &[u8] = &[ARG_DIR];
 const LD: &[u8] = &[ARG_IND | ARG_DIR, ARG_REG];
 const ST: &[u8] = &[ARG_REG, ARG_REG | ARG_IND];
 const RRR: &[u8] = &[ARG_REG, ARG_REG, ARG_REG];
-const LOGIC: &[u8] = &[ARG_REG | ARG_IND | ARG_DIR, ARG_REG | ARG_IND | ARG_DIR, ARG_REG];
+const LOGIC: &[u8] = &[
+    ARG_REG | ARG_IND | ARG_DIR,
+    ARG_REG | ARG_IND | ARG_DIR,
+    ARG_REG,
+];
 const ZJMP: &[u8] = &[ARG_DIR];
 const LDI: &[u8] = &[ARG_REG | ARG_IND | ARG_DIR, ARG_REG | ARG_DIR, ARG_REG];
 const STI: &[u8] = &[ARG_REG, ARG_REG | ARG_IND | ARG_DIR, ARG_REG | ARG_DIR];
@@ -39,22 +43,134 @@ const LLDI: &[u8] = &[ARG_REG | ARG_IND | ARG_DIR, ARG_REG | ARG_DIR, ARG_REG];
 const NOP: &[u8] = &[ARG_REG];
 
 pub const OPS: [OpSpec; 16] = [
-    OpSpec { name: "live", opcode: 1, cycles: 10, has_pcode: false, has_idx: false, allowed: LIVE },
-    OpSpec { name: "ld", opcode: 2, cycles: 5, has_pcode: true, has_idx: false, allowed: LD },
-    OpSpec { name: "st", opcode: 3, cycles: 5, has_pcode: true, has_idx: false, allowed: ST },
-    OpSpec { name: "add", opcode: 4, cycles: 10, has_pcode: true, has_idx: false, allowed: RRR },
-    OpSpec { name: "sub", opcode: 5, cycles: 10, has_pcode: true, has_idx: false, allowed: RRR },
-    OpSpec { name: "and", opcode: 6, cycles: 6, has_pcode: true, has_idx: false, allowed: LOGIC },
-    OpSpec { name: "or", opcode: 7, cycles: 6, has_pcode: true, has_idx: false, allowed: LOGIC },
-    OpSpec { name: "xor", opcode: 8, cycles: 6, has_pcode: true, has_idx: false, allowed: LOGIC },
-    OpSpec { name: "zjmp", opcode: 9, cycles: 20, has_pcode: false, has_idx: true, allowed: ZJMP },
-    OpSpec { name: "ldi", opcode: 10, cycles: 25, has_pcode: true, has_idx: true, allowed: LDI },
-    OpSpec { name: "sti", opcode: 11, cycles: 25, has_pcode: true, has_idx: true, allowed: STI },
-    OpSpec { name: "fork", opcode: 12, cycles: 800, has_pcode: false, has_idx: true, allowed: FORK },
-    OpSpec { name: "lld", opcode: 13, cycles: 10, has_pcode: true, has_idx: false, allowed: LLD },
-    OpSpec { name: "lldi", opcode: 14, cycles: 50, has_pcode: true, has_idx: true, allowed: LLDI },
-    OpSpec { name: "lfork", opcode: 15, cycles: 1000, has_pcode: false, has_idx: true, allowed: FORK },
-    OpSpec { name: "nop", opcode: 16, cycles: 2, has_pcode: true, has_idx: false, allowed: NOP },
+    OpSpec {
+        name: "live",
+        opcode: 1,
+        cycles: 10,
+        has_pcode: false,
+        has_idx: false,
+        allowed: LIVE,
+    },
+    OpSpec {
+        name: "ld",
+        opcode: 2,
+        cycles: 5,
+        has_pcode: true,
+        has_idx: false,
+        allowed: LD,
+    },
+    OpSpec {
+        name: "st",
+        opcode: 3,
+        cycles: 5,
+        has_pcode: true,
+        has_idx: false,
+        allowed: ST,
+    },
+    OpSpec {
+        name: "add",
+        opcode: 4,
+        cycles: 10,
+        has_pcode: true,
+        has_idx: false,
+        allowed: RRR,
+    },
+    OpSpec {
+        name: "sub",
+        opcode: 5,
+        cycles: 10,
+        has_pcode: true,
+        has_idx: false,
+        allowed: RRR,
+    },
+    OpSpec {
+        name: "and",
+        opcode: 6,
+        cycles: 6,
+        has_pcode: true,
+        has_idx: false,
+        allowed: LOGIC,
+    },
+    OpSpec {
+        name: "or",
+        opcode: 7,
+        cycles: 6,
+        has_pcode: true,
+        has_idx: false,
+        allowed: LOGIC,
+    },
+    OpSpec {
+        name: "xor",
+        opcode: 8,
+        cycles: 6,
+        has_pcode: true,
+        has_idx: false,
+        allowed: LOGIC,
+    },
+    OpSpec {
+        name: "zjmp",
+        opcode: 9,
+        cycles: 20,
+        has_pcode: false,
+        has_idx: true,
+        allowed: ZJMP,
+    },
+    OpSpec {
+        name: "ldi",
+        opcode: 10,
+        cycles: 25,
+        has_pcode: true,
+        has_idx: true,
+        allowed: LDI,
+    },
+    OpSpec {
+        name: "sti",
+        opcode: 11,
+        cycles: 25,
+        has_pcode: true,
+        has_idx: true,
+        allowed: STI,
+    },
+    OpSpec {
+        name: "fork",
+        opcode: 12,
+        cycles: 800,
+        has_pcode: false,
+        has_idx: true,
+        allowed: FORK,
+    },
+    OpSpec {
+        name: "lld",
+        opcode: 13,
+        cycles: 10,
+        has_pcode: true,
+        has_idx: false,
+        allowed: LLD,
+    },
+    OpSpec {
+        name: "lldi",
+        opcode: 14,
+        cycles: 50,
+        has_pcode: true,
+        has_idx: true,
+        allowed: LLDI,
+    },
+    OpSpec {
+        name: "lfork",
+        opcode: 15,
+        cycles: 1000,
+        has_pcode: false,
+        has_idx: true,
+        allowed: FORK,
+    },
+    OpSpec {
+        name: "nop",
+        opcode: 16,
+        cycles: 2,
+        has_pcode: true,
+        has_idx: false,
+        allowed: NOP,
+    },
 ];
 
 pub fn by_name(name: &str) -> Option<&'static OpSpec> {
@@ -62,14 +178,24 @@ pub fn by_name(name: &str) -> Option<&'static OpSpec> {
 }
 
 pub fn by_opcode(opcode: u8) -> Option<&'static OpSpec> {
-    if opcode == 0 { None } else { OPS.get((opcode - 1) as usize) }
+    if opcode == 0 {
+        None
+    } else {
+        OPS.get((opcode - 1) as usize)
+    }
 }
 
 pub fn arg_size(kind: u8, has_idx: bool) -> usize {
     match kind {
         ARG_REG => 1,
         ARG_IND => IND_SIZE,
-        ARG_DIR => if has_idx { IND_SIZE } else { DIR_SIZE },
+        ARG_DIR => {
+            if has_idx {
+                IND_SIZE
+            } else {
+                DIR_SIZE
+            }
+        }
         _ => 0,
     }
 }

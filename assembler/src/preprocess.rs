@@ -17,20 +17,38 @@ pub fn preprocess(source: &str) -> Result<Vec<SourceLine>, AsmError> {
         let code = strip_comment(raw);
         let trimmed = code.trim();
         if trimmed.starts_with(".define ") || trimmed.starts_with(".macro ") {
-            let mut parts = trimmed.splitn(3, char::is_whitespace).filter(|p| !p.is_empty());
+            let mut parts = trimmed
+                .splitn(3, char::is_whitespace)
+                .filter(|p| !p.is_empty());
             let _directive = parts.next();
-            let name = parts.next().ok_or_else(|| AsmError::line(line_no, "macro name is missing"))?;
-            let value = parts.next().ok_or_else(|| AsmError::line(line_no, "macro value is missing"))?;
+            let name = parts
+                .next()
+                .ok_or_else(|| AsmError::line(line_no, "macro name is missing"))?;
+            let value = parts
+                .next()
+                .ok_or_else(|| AsmError::line(line_no, "macro value is missing"))?;
             if !valid_macro_name(name) {
-                return Err(AsmError::line(line_no, format!("invalid macro name '{name}'")));
+                return Err(AsmError::line(
+                    line_no,
+                    format!("invalid macro name '{name}'"),
+                ));
             }
-            if macros.insert(name.to_owned(), value.trim().to_owned()).is_some() {
-                return Err(AsmError::line(line_no, format!("macro '{name}' already defined")));
+            if macros
+                .insert(name.to_owned(), value.trim().to_owned())
+                .is_some()
+            {
+                return Err(AsmError::line(
+                    line_no,
+                    format!("macro '{name}' already defined"),
+                ));
             }
             continue;
         }
         let expanded = expand_line(raw, &macros, line_no)?;
-        out.push(SourceLine { number: line_no, text: expanded });
+        out.push(SourceLine {
+            number: line_no,
+            text: expanded,
+        });
     }
 
     Ok(out)
@@ -38,12 +56,18 @@ pub fn preprocess(source: &str) -> Result<Vec<SourceLine>, AsmError> {
 
 fn valid_macro_name(name: &str) -> bool {
     let mut bytes = name.bytes();
-    let Some(first) = bytes.next() else { return false; };
+    let Some(first) = bytes.next() else {
+        return false;
+    };
     (first.is_ascii_uppercase() || first == b'_')
         && bytes.all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == b'_')
 }
 
-fn expand_line(line: &str, macros: &HashMap<String, String>, line_no: usize) -> Result<String, AsmError> {
+fn expand_line(
+    line: &str,
+    macros: &HashMap<String, String>,
+    line_no: usize,
+) -> Result<String, AsmError> {
     let mut current = line.to_owned();
     let mut seen = HashSet::new();
     for _ in 0..32 {
@@ -53,7 +77,10 @@ fn expand_line(line: &str, macros: &HashMap<String, String>, line_no: usize) -> 
         }
         for name in names {
             if !seen.insert(name.clone()) && next.contains(&format!("${}", name)) {
-                return Err(AsmError::line(line_no, format!("recursive macro expansion involving '{name}'")));
+                return Err(AsmError::line(
+                    line_no,
+                    format!("recursive macro expansion involving '{name}'"),
+                ));
             }
         }
         current = next;
@@ -61,7 +88,11 @@ fn expand_line(line: &str, macros: &HashMap<String, String>, line_no: usize) -> 
     Err(AsmError::line(line_no, "macro expansion depth exceeded"))
 }
 
-fn expand_once(line: &str, macros: &HashMap<String, String>, line_no: usize) -> Result<(String, bool, Vec<String>), AsmError> {
+fn expand_once(
+    line: &str,
+    macros: &HashMap<String, String>,
+    line_no: usize,
+) -> Result<(String, bool, Vec<String>), AsmError> {
     let bytes = line.as_bytes();
     let mut out = String::with_capacity(line.len());
     let mut i = 0;
@@ -83,14 +114,23 @@ fn expand_once(line: &str, macros: &HashMap<String, String>, line_no: usize) -> 
         if !quoted && c == b'$' {
             let start = i + 1;
             let mut end = start;
-            while end < bytes.len() && (bytes[end].is_ascii_uppercase() || bytes[end].is_ascii_digit() || bytes[end] == b'_') {
+            while end < bytes.len()
+                && (bytes[end].is_ascii_uppercase()
+                    || bytes[end].is_ascii_digit()
+                    || bytes[end] == b'_')
+            {
                 end += 1;
             }
             if end == start {
-                return Err(AsmError::line(line_no, "'$' must be followed by a macro name"));
+                return Err(AsmError::line(
+                    line_no,
+                    "'$' must be followed by a macro name",
+                ));
             }
             let name = &line[start..end];
-            let value = macros.get(name).ok_or_else(|| AsmError::line(line_no, format!("undefined macro '{name}'")))?;
+            let value = macros
+                .get(name)
+                .ok_or_else(|| AsmError::line(line_no, format!("undefined macro '{name}'")))?;
             out.push_str(value);
             names.push(name.to_owned());
             changed = true;

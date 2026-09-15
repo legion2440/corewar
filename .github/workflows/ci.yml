@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,16 +17,5 @@ jobs:
           cache: false
       - name: Python validator dependency
         run: python3 -m pip install --user jsonschema
-      - name: Build and unit tests
-        run: make build test contracts
-      - name: Fetch official playground
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/01-edu/public/master/subjects/corewar/data/playground.zip -o /tmp/playground.zip
-          unzip -q /tmp/playground.zip -d /tmp/playground
-          chmod +x /tmp/playground/playground/asm_ref /tmp/playground/playground/vm_ref
-      - name: Inspect reference interface
-        run: |
-          cat /tmp/playground/playground/README.md
-          file /tmp/playground/playground/asm_ref /tmp/playground/playground/vm_ref
-          /tmp/playground/playground/asm_ref || true
-          /tmp/playground/playground/vm_ref || true
+      - name: Full audit
+        run: make audit

@@ -80,7 +80,7 @@ func TestZjmpUsesCarryAndIdxMod(t *testing.T) {
 
 func TestLoadAddressingLongVariants(t *testing.T) {
 	ldCode := []byte{2, 0xd0, 0x02, 0x58, 2}
-	vm, p, _ := executeOnce(t, ldCode, func(vm *VM, _ *process) {
+	_, p, _ := executeOnce(t, ldCode, func(vm *VM, _ *process) {
 		vm.arena.WriteInt32(88, 111)
 		vm.arena.WriteInt32(600, 222)
 	})
@@ -89,7 +89,7 @@ func TestLoadAddressingLongVariants(t *testing.T) {
 	}
 
 	lldCode := []byte{13, 0xd0, 0x02, 0x58, 2}
-	vm, p, _ = executeOnce(t, lldCode, func(vm *VM, _ *process) {
+	_, p, _ = executeOnce(t, lldCode, func(vm *VM, _ *process) {
 		vm.arena.WriteInt32(88, 111)
 		vm.arena.WriteInt32(600, 222)
 	})

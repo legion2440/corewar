@@ -189,6 +189,13 @@ for cycle in 10 100 500 1600; do
     fail "learner VM produced no recognized dump at cycle $cycle"
   fi
   cmp -s "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" || {
+    printf '%s\\n' "--- dump row counts at cycle $cycle ---" >&2
+    wc -l "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" >&2
+    printf '%s\\n' '--- reference tail ---' >&2
+    tail -8 "$diff_dir/ref-$cycle.dump" >&2
+    printf '%s\\n' '--- learner tail ---' >&2
+    tail -8 "$diff_dir/ours-$cycle.dump" >&2
+    printf '%s\\n' '--- first differences ---' >&2
     diff -u "$diff_dir/ref-$cycle.dump" "$diff_dir/ours-$cycle.dump" | head -120 >&2 || true
     fail "VM memory diverges from reference at cycle $cycle"
   }

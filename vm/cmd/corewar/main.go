@@ -110,7 +110,7 @@ func printPlayers(w io.Writer, players []corewar.PlayerState) {
 
 func dumpMemory(w io.Writer, memory [4096]byte) {
 	for i := 0; i < len(memory); i += 32 {
-		fmt.Fprintf(w, "0x%04x :", i)
+		fmt.Fprintf(w, "%08x ", i)
 		for j := 0; j < 32; j++ {
 			fmt.Fprintf(w, " %02x", memory[i+j])
 		}

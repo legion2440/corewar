@@ -28,19 +28,27 @@ pub fn encode(program: &Program) -> Result<Vec<u8>, AsmError> {
                 Argument::Direct(expr) => {
                     let value = expr.eval(&program.labels, ins.offset).map_err(|e| AsmError::line(ins.line, e.message))?;
                     if ins.op.has_idx {
-                        out.extend_from_slice(&(value as i16).to_be_bytes());
+                        out.extend_from_slice(&checked_i16(value, ins.line)?.to_be_bytes());
                     } else {
-                        out.extend_from_slice(&(value as i32).to_be_bytes());
+                        out.extend_from_slice(&checked_i32(value, ins.line)?.to_be_bytes());
                     }
                 }
                 Argument::Indirect(expr) => {
                     let value = expr.eval(&program.labels, ins.offset).map_err(|e| AsmError::line(ins.line, e.message))?;
-                    out.extend_from_slice(&(value as i16).to_be_bytes());
+                    out.extend_from_slice(&checked_i16(value, ins.line)?.to_be_bytes());
                 }
             }
         }
     }
     Ok(out)
+}
+
+fn checked_i16(value: i64, line: usize) -> Result<i16, AsmError> {
+    i16::try_from(value).map_err(|_| AsmError::line(line, format!("value {value} does not fit in a 16-bit operand")))
+}
+
+fn checked_i32(value: i64, line: usize) -> Result<i32, AsmError> {
+    i32::try_from(value).map_err(|_| AsmError::line(line, format!("value {value} does not fit in a 32-bit operand")))
 }
 
 fn write_padded(out: &mut Vec<u8>, bytes: &[u8], len: usize) {

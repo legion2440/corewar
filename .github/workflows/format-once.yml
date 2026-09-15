@@ -1,0 +1,39 @@
+name: Format once
+
+on:
+  push:
+    branches: [implementation/corewar]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.event.head_commit.message != 'style: apply canonical formatting'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: implementation/corewar
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+          cache: false
+      - name: Apply formatters
+        run: |
+          cargo fmt --manifest-path assembler/Cargo.toml
+          gofmt -w vm
+      - name: Commit formatter output
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assembler vm
+          git commit -m "style: apply canonical formatting"
+          git push origin HEAD:implementation/corewar

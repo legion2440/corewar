@@ -176,8 +176,8 @@ for cycle in 10 100 500 1600; do
     cat "$diff_dir/ours-$cycle.err" >&2
     fail "learner VM failed at cycle $cycle"
   fi
-  grep '^0x[0-9a-fA-F]\\{4\\} :' "$diff_dir/ref-$cycle.txt" >"$diff_dir/ref-$cycle.dump" || true
-  grep '^0x[0-9a-fA-F]\\{4\\} :' "$diff_dir/ours-$cycle.txt" >"$diff_dir/ours-$cycle.dump" || true
+  grep -E '^[0-9a-fA-F]{8}  ' "$diff_dir/ref-$cycle.txt" >"$diff_dir/ref-$cycle.dump" || true
+  grep -E '^[0-9a-fA-F]{8}  ' "$diff_dir/ours-$cycle.txt" >"$diff_dir/ours-$cycle.dump" || true
   if [[ ! -s "$diff_dir/ref-$cycle.dump" ]]; then
     printf '%s\\n' '--- reference VM output ---' >&2
     head -160 "$diff_dir/ref-$cycle.txt" >&2

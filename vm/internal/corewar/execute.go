@@ -100,12 +100,15 @@ func (vm *VM) execute(p *process) []Event {
 	case 13:
 		value := vm.resolve(p, d.args[0], false)
 		vm.setReg(p, d.args[1], value)
+		p.carry = value == 0
 		vm.advance(p, d.size)
 	case 14:
 		a := vm.resolve(p, d.args[0], false)
 		b := vm.resolve(p, d.args[1], false)
 		address := p.pc + int(a+b)
-		vm.setReg(p, d.args[2], vm.arena.ReadInt32(address))
+		value := vm.arena.ReadInt32(address)
+		vm.setReg(p, d.args[2], value)
+		p.carry = value == 0
 		vm.advance(p, d.size)
 	case 15:
 		childPC := p.pc + int(d.args[0].raw)

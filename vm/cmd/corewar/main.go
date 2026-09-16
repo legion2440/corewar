@@ -66,7 +66,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 	}
 	if *dump == 0 {
 		dumpMemory(stdout, vm.Snapshot().Memory)
-		printResult(stdout, vm)
+		printResultAtCycle(stdout, vm, 1)
 		return nil
 	}
 
@@ -143,10 +143,14 @@ func printPlayers(w io.Writer, players []corewar.PlayerState) {
 }
 
 func printResult(w io.Writer, vm *corewar.VM) {
+	printResultAtCycle(w, vm, vm.Cycle())
+}
+
+func printResultAtCycle(w io.Writer, vm *corewar.VM, cycle int) {
 	if id, name, ok := vm.Winner(); ok {
-		fmt.Fprintf(w, "cycle %d: The winner is player %d: %s!\n", vm.Cycle(), id, name)
+		fmt.Fprintf(w, "cycle %d: The winner is player %d: %s!\n", cycle, id, name)
 	} else {
-		fmt.Fprintf(w, "cycle %d: Nobody wins!\n", vm.Cycle())
+		fmt.Fprintf(w, "cycle %d: Nobody wins!\n", cycle)
 	}
 }
 

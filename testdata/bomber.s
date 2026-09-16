@@ -12,6 +12,7 @@ seed_live:
 
         and r1,%0,r6
         fork %:bomb_loop
+        # Two-player spacing is 2048 bytes; +3 lands at bomb_loop after this lfork.
         lfork %2051
 
 bomb_loop:

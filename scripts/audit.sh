@@ -61,6 +61,16 @@ for src in "$PLAYERS"/invalid/*; do
   expect_failure ./asm "$invalid_work/$base"
   [[ ! -e "$out" ]] || fail "invalid input created $out"
 done
+
+special_src="$PLAYERS/specials/pierino_r_out_of_range.s"
+[[ -f "$special_src" ]] || fail "missing official special fixture: $special_src"
+cp "$special_src" "$invalid_work/pierino_r_out_of_range.s"
+special_out="$invalid_work/pierino_r_out_of_range.cor"
+rm -f "$special_out"
+expect_failure ./asm "$invalid_work/pierino_r_out_of_range.s"
+[[ ! -e "$special_out" ]] || fail "special invalid input created $special_out"
+expect_failure "$ASM_REF" "$invalid_work/pierino_r_out_of_range.s"
+[[ ! -e "$special_out" ]] || fail "reference assembler unexpectedly created $special_out"
 rm -rf "$invalid_work"
 
 printf '%s\n' '[3/9] Byte-for-byte assembler compatibility'
@@ -84,6 +94,48 @@ for src in "$PLAYERS"/*.s; do
 done
 (( valid_count > 0 )) || fail "no official valid players found"
 rm -rf "$ours_dir" "$ref_dir"
+
+header_dir="$(mktemp -d)"
+mkdir -p "$header_dir/src" "$header_dir/ours" "$header_dir/ref"
+python3 - "$header_dir/src" <<'PY'
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+for n in (128, 129):
+    (root / f"name-{n}.s").write_text(
+        f'.name "{"N" * n}"\n'
+        '.description "test"\n'
+        'live %1\n',
+        encoding="utf-8",
+    )
+for n in (2048, 2049):
+    (root / f"desc-{n}.s").write_text(
+        '.name "test"\n'
+        f'.description "{"D" * n}"\n'
+        'live %1\n',
+        encoding="utf-8",
+    )
+PY
+
+for stem in name-128 desc-2048; do
+  cp "$header_dir/src/$stem.s" "$header_dir/ours/$stem.s"
+  cp "$header_dir/src/$stem.s" "$header_dir/ref/$stem.s"
+  ./asm "$header_dir/ours/$stem.s" >/dev/null
+  "$ASM_REF" "$header_dir/ref/$stem.s" >/dev/null
+  cmp -s "$header_dir/ours/$stem.cor" "$header_dir/ref/$stem.cor" ||
+    fail "header boundary output differs for $stem"
+done
+
+for stem in name-129 desc-2049; do
+  cp "$header_dir/src/$stem.s" "$header_dir/ours/$stem.s"
+  cp "$header_dir/src/$stem.s" "$header_dir/ref/$stem.s"
+  expect_failure ./asm "$header_dir/ours/$stem.s"
+  expect_failure "$ASM_REF" "$header_dir/ref/$stem.s"
+  [[ ! -e "$header_dir/ours/$stem.cor" ]] || fail "invalid header boundary created learner $stem.cor"
+  [[ ! -e "$header_dir/ref/$stem.cor" ]] || fail "invalid header boundary created reference $stem.cor"
+done
+rm -rf "$header_dir"
 
 printf '%s\n' '[4/9] Disassembler round-trip bonus'
 round_dir="$(mktemp -d)"

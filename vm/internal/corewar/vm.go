@@ -155,7 +155,7 @@ func (vm *VM) checkProcesses() []Event {
 		vm.checksSinceDecrease = 0
 	} else {
 		vm.checksSinceDecrease++
-		if vm.checksSinceDecrease >= MaxChecks {
+		if vm.checksSinceDecrease > MaxChecks {
 			vm.cycleToDie -= CycleDelta
 			vm.checksSinceDecrease = 0
 		}

@@ -79,25 +79,9 @@ PLAYGROUND_DIR=$HOME/corewar-playground/playground make audit
 
 Assembler, VM и графический visualizer можно собирать и запускать нативно в Windows.
 
-#### Git Bash + GNU Make
+Корневой `Makefile` рассчитан на Unix shell, поэтому в native Windows используй прямые PowerShell-команды ниже. Git Bash можно использовать для запуска получившихся `.exe`, но полный `make audit` всё равно запускается в WSL/Linux.
 
-Если установлены Rust, Go, Python, GNU Make и Git Bash:
-
-```bash
-make build
-make test
-make visual
-```
-
-Запуск:
-
-```bash
-./asm.exe testdata/ameba.s
-./corewar.exe testdata/ameba.cor
-./corewar-visual.exe testdata/ameba.cor champions/terminator.cor
-```
-
-#### PowerShell без Make
+#### PowerShell
 
 Assembler:
 
@@ -414,7 +398,7 @@ corewar/
 
 ## 🧑‍💻 Авторы
 
-- Nazar Yestayev [**@nyestaye**](https://01.tomorrow-school.ai/intra/astanahub/users/4468)
-- Sultan Yersultan [**@syersult**](https://01.tomorrow-school.ai/intra/astanahub/users/4423)
-- Daniyar Shadykhanov [**@dshadykh**](https://01.tomorrow-school.ai/intra/astanahub/users/2418)
-- Maksat Kapan [**@mkapan**](https://01.tomorrow-school.ai/intra/astanahub/users/3597)
+- Nazar Yestayev ([**@nyestaye**](https://01.tomorrow-school.ai/intra/astanahub/users/4468))
+- Sultan Yersultan ([**@syersult**](https://01.tomorrow-school.ai/intra/astanahub/users/4423))
+- Daniyar Shadykhanov ([**@dshadykh**](https://01.tomorrow-school.ai/intra/astanahub/users/2418))
+- Maksat Kapan ([**@mkapan**](https://01.tomorrow-school.ai/intra/astanahub/users/3597))

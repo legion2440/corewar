@@ -219,7 +219,7 @@ for src in "${diff_sources[@]}"; do
   "$ASM_REF" "$diff_dir/$base" >/dev/null
   diff_players+=("$diff_dir/${base%.s}.cor")
 done
-for cycle in 10 100 500 1600; do
+for cycle in 0 10 100 500 1600; do
   if ! "$VM_REF" -d "$cycle" "${diff_players[@]}" >"$diff_dir/ref-$cycle.txt" 2>"$diff_dir/ref-$cycle.err"; then
     cat "$diff_dir/ref-$cycle.err" >&2
     fail "reference VM failed at cycle $cycle"
@@ -231,6 +231,13 @@ for cycle in 10 100 500 1600; do
   python3 scripts/compare_dumps.py "$diff_dir/ref-$cycle.txt" "$diff_dir/ours-$cycle.txt" ||
     fail "VM memory diverges from reference at cycle $cycle"
 done
+
+ref_zero="$(tail -n 1 "$diff_dir/ref-0.txt")"
+ours_zero="$(tail -n 1 "$diff_dir/ours-0.txt")"
+[[ "$ours_zero" == "$ref_zero" ]] || {
+  printf 'reference: %s\nlearner:   %s\n' "$ref_zero" "$ours_zero" >&2
+  fail "VM -d 0 result line differs from reference"
+}
 
 for probe in testdata/probes/lld-carry.s testdata/probes/lldi-carry.s; do
   base="$(basename "$probe" .s)"
@@ -282,6 +289,47 @@ ours_b="$(tail -n 1 "$fight_dir/ours-b.txt")"
 [[ "$ours_b" == "$ref_b" ]] || {
   printf 'reference: %s\nlearner:   %s\n' "$ref_b" "$ours_b" >&2
   fail "full-match result differs from reference in ameba/terminator order"
+}
+
+four_dir="$fight_dir/four"
+mkdir -p "$four_dir"
+four_sources=(
+  "$PLAYERS/crab.s"
+  "$PLAYERS/pierino_fork.s"
+  "$PLAYERS/pierino_sti_reg_reg_reg.s"
+  "testdata/ameba.s"
+)
+four_players=()
+for src in "${four_sources[@]}"; do
+  base="$(basename "$src")"
+  cp "$src" "$four_dir/$base"
+  "$ASM_REF" "$four_dir/$base" >/dev/null
+  four_players+=("$four_dir/${base%.s}.cor")
+done
+
+"$VM_REF" "${four_players[@]}" >"$fight_dir/ref-4p-a.txt" 2>"$fight_dir/ref-4p-a.err"
+./corewar "${four_players[@]}" >"$fight_dir/ours-4p-a.txt" 2>"$fight_dir/ours-4p-a.err"
+
+reverse_players=(
+  "${four_players[3]}"
+  "${four_players[2]}"
+  "${four_players[1]}"
+  "${four_players[0]}"
+)
+"$VM_REF" "${reverse_players[@]}" >"$fight_dir/ref-4p-b.txt" 2>"$fight_dir/ref-4p-b.err"
+./corewar "${reverse_players[@]}" >"$fight_dir/ours-4p-b.txt" 2>"$fight_dir/ours-4p-b.err"
+
+ref_4p_a="$(tail -n 1 "$fight_dir/ref-4p-a.txt")"
+ours_4p_a="$(tail -n 1 "$fight_dir/ours-4p-a.txt")"
+ref_4p_b="$(tail -n 1 "$fight_dir/ref-4p-b.txt")"
+ours_4p_b="$(tail -n 1 "$fight_dir/ours-4p-b.txt")"
+[[ "$ours_4p_a" == "$ref_4p_a" ]] || {
+  printf 'reference: %s\nlearner:   %s\n' "$ref_4p_a" "$ours_4p_a" >&2
+  fail "four-player full-match result differs from reference"
+}
+[[ "$ours_4p_b" == "$ref_4p_b" ]] || {
+  printf 'reference: %s\nlearner:   %s\n' "$ref_4p_b" "$ours_4p_b" >&2
+  fail "reversed four-player full-match result differs from reference"
 }
 
 rm -rf "$fight_dir"

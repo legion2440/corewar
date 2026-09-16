@@ -108,6 +108,14 @@ go build -o ..\..\corewar-visual.exe .
 Pop-Location
 ```
 
+Запуск native binaries:
+
+```powershell
+.\asm.exe testdata\ameba.s
+.\corewar.exe testdata\ameba.cor
+.\corewar-visual.exe testdata\ameba.cor champions\terminator.cor
+```
+
 Тесты:
 
 ```powershell

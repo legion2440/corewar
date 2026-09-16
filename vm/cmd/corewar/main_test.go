@@ -61,15 +61,15 @@ func TestRunAcceptsDumpFlagAroundPlayerArguments(t *testing.T) {
 	}
 }
 
-func TestRunPrintsResultAtCycleZeroDump(t *testing.T) {
+func TestRunPrintsReferenceResultAtCycleZeroDump(t *testing.T) {
 	player := writeTestChampion(t, "zero")
 
 	var stdout, stderr bytes.Buffer
 	if err := run([]string{player, "-d", "0"}, &stdout, &stderr); err != nil {
 		t.Fatalf("run() error = %v, stderr = %q", err, stderr.String())
 	}
-	if !strings.HasSuffix(stdout.String(), "cycle 0: Nobody wins!\n") {
-		t.Fatalf("missing cycle-zero result line; tail = %q", tail(stdout.String(), 120))
+	if !strings.HasSuffix(stdout.String(), "cycle 1: Nobody wins!\n") {
+		t.Fatalf("unexpected dump-zero result line; tail = %q", tail(stdout.String(), 120))
 	}
 }
 

@@ -67,21 +67,54 @@ func TestInvalidPcodeAdvancesByEncodedParameterSizes(t *testing.T) {
 	}
 }
 
+func TestLifeCheckBoundaryMatchesReferenceCountdown(t *testing.T) {
+	vm, _ := New([]champion.Champion{champ("x", []byte{0})})
+
+	for vm.Cycle() < CycleToDie {
+		events := vm.Step()
+		for _, event := range events {
+			if event.Kind == EventCycleCheck {
+				t.Fatalf("life check occurred early at cycle %d", vm.Cycle())
+			}
+		}
+	}
+	if !vm.Alive() {
+		t.Fatal("process died before reference life-check boundary")
+	}
+
+	events := vm.Step()
+	if vm.Cycle() != CycleToDie+1 {
+		t.Fatalf("cycle=%d, want %d", vm.Cycle(), CycleToDie+1)
+	}
+	foundCheck := false
+	for _, event := range events {
+		if event.Kind == EventCycleCheck {
+			foundCheck = true
+		}
+	}
+	if !foundCheck {
+		t.Fatalf("missing life check at cycle %d", vm.Cycle())
+	}
+	if vm.Alive() {
+		t.Fatal("process without live should die at first life check")
+	}
+}
+
 func TestLifeChecksAndCycleToDieReduction(t *testing.T) {
 	vm, _ := New([]champion.Champion{champ("x", []byte{0})})
 	p := vm.processes[0]
-	vm.cycle = CycleToDie
+	vm.cycle = CycleToDie + 1
 	p.lastLiveCycle = 1
 	vm.livesSinceCheck = NbrLive
 	vm.checkProcesses()
 	if !vm.Alive() {
-		t.Fatal("process that lived in the period was killed")
+		t.Fatal("process that lived at the interval boundary was killed")
 	}
 	if vm.cycleToDie != CycleToDie-CycleDelta {
 		t.Fatalf("cycleToDie=%d", vm.cycleToDie)
 	}
 
-	vm.cycle += vm.cycleToDie
+	vm.cycle += vm.cycleToDie + 1
 	vm.checkProcesses()
 	if vm.Alive() {
 		t.Fatal("stale process should be killed")
@@ -139,6 +172,9 @@ func TestTerminatorBeatsAmebaInEitherPosition(t *testing.T) {
 		id, name, ok := vm.Winner()
 		if !ok || name != "terminator" {
 			t.Fatalf("winner id=%d name=%q ok=%v cycle=%d", id, name, ok, vm.Cycle())
+		}
+		if vm.Cycle() != 24398 {
+			t.Fatalf("match ended at cycle %d, want reference cycle 24398", vm.Cycle())
 		}
 	}
 }

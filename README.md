@@ -175,7 +175,7 @@ For a visual activity demo, assemble the dedicated bomber and run two copies:
 ./corewar-visual testdata/bomber.cor testdata/bomber.cor
 ```
 
-The demo is intentionally written for a two-player arena: each copy bombs two 376-byte bands around its code, forks a local bomber, and uses `lfork` to start an invading bomber in the opponent's copy. It is demonstration data only; the submitted champion remains `champions/terminator.s`.
+The demo is intentionally written for a two-player arena: each copy bombs two 380-byte bands around its code, forks a local bomber, and uses `lfork` to start an invading bomber in the opponent's copy. It is demonstration data only; the submitted champion remains `champions/terminator.s`.
 
 A dependency-free terminal renderer remains available for diagnostics:
 

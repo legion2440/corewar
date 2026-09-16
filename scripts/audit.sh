@@ -198,22 +198,40 @@ done
 
 rm -rf "$diff_dir"
 
-printf '%s\n' '[9/9] Champion beats ameba on reference VM in both positions'
+printf '%s\n' '[9/9] Champion and full-match VM compatibility'
 fight_dir="$(mktemp -d)"
 cp champions/terminator.s "$fight_dir/terminator.s"
 cp testdata/ameba.s "$fight_dir/ameba.s"
 "$ASM_REF" "$fight_dir/terminator.s" >/dev/null
 "$ASM_REF" "$fight_dir/ameba.s" >/dev/null
-"$VM_REF" "$fight_dir/terminator.cor" "$fight_dir/ameba.cor" >"$fight_dir/fight-a.txt" 2>"$fight_dir/fight-a.err"
-"$VM_REF" "$fight_dir/ameba.cor" "$fight_dir/terminator.cor" >"$fight_dir/fight-b.txt" 2>"$fight_dir/fight-b.err"
-grep -qi 'winner.*terminator' "$fight_dir/fight-a.txt" || {
-  cat "$fight_dir/fight-a.txt" >&2
-  fail "terminator did not beat ameba from first position"
+
+"$VM_REF" "$fight_dir/terminator.cor" "$fight_dir/ameba.cor" >"$fight_dir/ref-a.txt" 2>"$fight_dir/ref-a.err"
+"$VM_REF" "$fight_dir/ameba.cor" "$fight_dir/terminator.cor" >"$fight_dir/ref-b.txt" 2>"$fight_dir/ref-b.err"
+./corewar "$fight_dir/terminator.cor" "$fight_dir/ameba.cor" >"$fight_dir/ours-a.txt" 2>"$fight_dir/ours-a.err"
+./corewar "$fight_dir/ameba.cor" "$fight_dir/terminator.cor" >"$fight_dir/ours-b.txt" 2>"$fight_dir/ours-b.err"
+
+grep -qi 'winner.*terminator' "$fight_dir/ref-a.txt" || {
+  cat "$fight_dir/ref-a.txt" >&2
+  fail "terminator did not beat ameba from first position on reference VM"
 }
-grep -qi 'winner.*terminator' "$fight_dir/fight-b.txt" || {
-  cat "$fight_dir/fight-b.txt" >&2
-  fail "terminator did not beat ameba from second position"
+grep -qi 'winner.*terminator' "$fight_dir/ref-b.txt" || {
+  cat "$fight_dir/ref-b.txt" >&2
+  fail "terminator did not beat ameba from second position on reference VM"
 }
+
+ref_a="$(tail -n 1 "$fight_dir/ref-a.txt")"
+ref_b="$(tail -n 1 "$fight_dir/ref-b.txt")"
+ours_a="$(tail -n 1 "$fight_dir/ours-a.txt")"
+ours_b="$(tail -n 1 "$fight_dir/ours-b.txt")"
+[[ "$ours_a" == "$ref_a" ]] || {
+  printf 'reference: %s\nlearner:   %s\n' "$ref_a" "$ours_a" >&2
+  fail "full-match result differs from reference in terminator/ameba order"
+}
+[[ "$ours_b" == "$ref_b" ]] || {
+  printf 'reference: %s\nlearner:   %s\n' "$ref_b" "$ours_b" >&2
+  fail "full-match result differs from reference in ameba/terminator order"
+}
+
 rm -rf "$fight_dir"
 
 printf 'audit: PASS (%d official assembler fixtures, %d disassembler round-trips)\n' "$valid_count" "$round_count"

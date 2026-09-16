@@ -91,7 +91,7 @@ func TestRunDumpsFinalStateWhenRequestedCycleOutlivesMatch(t *testing.T) {
 	if dumpRows != 128 {
 		t.Fatalf("got %d final dump rows, want 128", dumpRows)
 	}
-	if !strings.HasSuffix(stdout.String(), "cycle 1536: Nobody wins!\n") {
+	if !strings.HasSuffix(stdout.String(), "cycle 1537: Nobody wins!\n") {
 		t.Fatalf("unexpected final result; tail = %q", tail(stdout.String(), 120))
 	}
 }

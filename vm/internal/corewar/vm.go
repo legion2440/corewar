@@ -91,7 +91,7 @@ func (vm *VM) Step() []Event {
 		}
 	}
 
-	if vm.cycle-vm.lastCheckCycle >= vm.cycleToDie {
+	if vm.cycle-vm.lastCheckCycle > vm.cycleToDie {
 		events = append(events, vm.checkProcesses()...)
 	}
 	return events
@@ -141,7 +141,7 @@ func (vm *VM) checkProcesses() []Event {
 	events := []Event{{Kind: EventCycleCheck, Cycle: vm.cycle, Message: "life check"}}
 	alive := vm.processes[:0]
 	for _, p := range vm.processes {
-		if vm.cycle-p.lastLiveCycle >= vm.cycleToDie {
+		if vm.cycle-p.lastLiveCycle > vm.cycleToDie {
 			events = append(events, Event{Kind: EventDeath, Cycle: vm.cycle, ProcessID: p.id, PlayerID: p.playerID, Address: p.pc})
 			continue
 		}

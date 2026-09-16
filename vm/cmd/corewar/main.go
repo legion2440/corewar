@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/legion2440/corewar/vm/internal/champion"
 	"github.com/legion2440/corewar/vm/internal/corewar"
@@ -30,7 +31,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 		printHelp(stdout)
 		return nil
 	}
-	if err := fs.Parse(args); err != nil {
+	if err := fs.Parse(normalizeArgs(args)); err != nil {
 		return err
 	}
 	paths := fs.Args()
@@ -65,6 +66,7 @@ func run(args []string, stdout, stderr io.Writer) error {
 	}
 	if *dump == 0 {
 		dumpMemory(stdout, vm.Snapshot().Memory)
+		printResult(stdout, vm)
 		return nil
 	}
 
@@ -87,24 +89,64 @@ func run(args []string, stdout, stderr io.Writer) error {
 				renderer.Render(vm.Snapshot(), events, true)
 			}
 			dumpMemory(stdout, vm.Snapshot().Memory)
+			printResult(stdout, vm)
 			return nil
 		}
 	}
 	if *visualMode {
 		renderer.Render(vm.Snapshot(), nil, true)
 	}
-	if id, name, ok := vm.Winner(); ok {
-		fmt.Fprintf(stdout, "cycle %d: The winner is player %d: %s!\n", vm.Cycle(), id, name)
-	} else {
-		fmt.Fprintf(stdout, "cycle %d: Nobody wins!\n", vm.Cycle())
+	if *dump >= 0 && vm.Cycle() < *dump {
+		dumpMemory(stdout, vm.Snapshot().Memory)
 	}
+	printResult(stdout, vm)
 	return nil
+}
+
+func normalizeArgs(args []string) []string {
+	flags := make([]string, 0, len(args))
+	paths := make([]string, 0, len(args))
+
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
+		if arg == "--" {
+			paths = append(paths, args[i+1:]...)
+			break
+		}
+
+		switch {
+		case arg == "-d" || arg == "--visual-every":
+			flags = append(flags, arg)
+			if i+1 < len(args) {
+				i++
+				flags = append(flags, args[i])
+			}
+		case arg == "-v" || arg == "--visual":
+			flags = append(flags, arg)
+		case strings.HasPrefix(arg, "-d=") || strings.HasPrefix(arg, "--visual-every="):
+			flags = append(flags, arg)
+		case strings.HasPrefix(arg, "-"):
+			flags = append(flags, arg)
+		default:
+			paths = append(paths, arg)
+		}
+	}
+
+	return append(flags, paths...)
 }
 
 func printPlayers(w io.Writer, players []corewar.PlayerState) {
 	fmt.Fprintln(w, "For this match the players will be:")
 	for _, p := range players {
 		fmt.Fprintf(w, "Player %d (%d bytes): %s (%s)\n", p.ID, p.CodeSize, p.Name, p.Description)
+	}
+}
+
+func printResult(w io.Writer, vm *corewar.VM) {
+	if id, name, ok := vm.Winner(); ok {
+		fmt.Fprintf(w, "cycle %d: The winner is player %d: %s!\n", vm.Cycle(), id, name)
+	} else {
+		fmt.Fprintf(w, "cycle %d: Nobody wins!\n", vm.Cycle())
 	}
 }
 

@@ -168,6 +168,15 @@ Controls:
 
 The 1600×960 interface contains a 64×64 arena, player-colored memory ownership, active PC cursors, write-flash animations, cycle/CYCLE_TO_DIE telemetry, player status cards, winner state, and a byte/process inspector.
 
+For a visual activity demo, assemble the dedicated bomber and run two copies:
+
+```bash
+./asm testdata/bomber.s
+./corewar-visual testdata/bomber.cor testdata/bomber.cor
+```
+
+The demo is intentionally written for a two-player arena: each copy bombs two 376-byte bands around its code, forks a local bomber, and uses `lfork` to start an invading bomber in the opponent's copy. It is demonstration data only; the submitted champion remains `champions/terminator.s`.
+
 A dependency-free terminal renderer remains available for diagnostics:
 
 ```bash

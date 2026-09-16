@@ -93,6 +93,18 @@ for src in "$PLAYERS"/*.s; do
   valid_count=$((valid_count + 1))
 done
 (( valid_count > 0 )) || fail "no official valid players found"
+
+demo_src="testdata/bomber.s"
+demo_base="$(basename "$demo_src")"
+cp "$demo_src" "$ours_dir/$demo_base"
+cp "$demo_src" "$ref_dir/$demo_base"
+./asm "$ours_dir/$demo_base" >/dev/null
+"$ASM_REF" "$ref_dir/$demo_base" >/dev/null
+cmp -s "$ours_dir/${demo_base%.s}.cor" "$ref_dir/${demo_base%.s}.cor" || {
+  cmp -l "$ours_dir/${demo_base%.s}.cor" "$ref_dir/${demo_base%.s}.cor" | head -20 >&2 || true
+  fail "assembler output differs for visual demo $demo_base"
+}
+
 rm -rf "$ours_dir" "$ref_dir"
 
 header_dir="$(mktemp -d)"

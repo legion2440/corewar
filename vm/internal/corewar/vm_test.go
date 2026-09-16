@@ -121,6 +121,25 @@ func TestLifeChecksAndCycleToDieReduction(t *testing.T) {
 	}
 }
 
+func TestCycleToDieReductionWaitsUntilAfterMaxChecks(t *testing.T) {
+	vm, _ := New([]champion.Champion{champ("x", []byte{0})})
+	p := vm.processes[0]
+
+	for check := 1; check <= MaxChecks; check++ {
+		p.lastLiveCycle = vm.cycle
+		vm.checkProcesses()
+		if vm.cycleToDie != CycleToDie {
+			t.Fatalf("cycleToDie decreased on check %d: got %d, want %d", check, vm.cycleToDie, CycleToDie)
+		}
+	}
+
+	p.lastLiveCycle = vm.cycle
+	vm.checkProcesses()
+	if vm.cycleToDie != CycleToDie-CycleDelta {
+		t.Fatalf("cycleToDie=%d after check %d, want %d", vm.cycleToDie, MaxChecks+1, CycleToDie-CycleDelta)
+	}
+}
+
 func TestLdAndArithmeticCarry(t *testing.T) {
 	code := []byte{
 		2, 0x90, 0, 0, 0, 0, 2,
